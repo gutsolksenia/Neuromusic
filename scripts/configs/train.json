@@ -108,14 +108,14 @@
   },
   "trainer": {
     "epochs": 20,
-    "save_dir": "saved/",
+    "save_dir": "/storage/kliffeup/gutsolksenia/neuromusic-saved/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 100,
     "visualize": "wandb",
-    "wandb_project": "diploma",
-    "wandb_run_name": "Music Transformer",
+    "wandb_project": "gutsolksenia_neuromusic",
+    "wandb_run_name": "test",
     "len_epoch": 4000,
     "grad_norm_clip": 0.5
   }
