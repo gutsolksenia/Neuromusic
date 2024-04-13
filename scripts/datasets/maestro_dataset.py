@@ -20,7 +20,7 @@ class MaestroDataset(BaseDataset):
         if part not in PARTS:
             raise ValueError(f'Part {part} not in {PARTS}')
         if data_dir is None:
-            data_dir = ROOT_PATH / "data" / "datasets" / "maestro-v2.0.0"
+            data_dir = ROOT_PATH / "datasets" / "maestro-v2.0.0"
             data_dir.mkdir(exist_ok=True, parents=True)
         self._data_dir = data_dir
         index = self._get_or_load_index(part)

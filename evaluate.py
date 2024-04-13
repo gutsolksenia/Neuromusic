@@ -12,7 +12,6 @@ from scripts.evaluation import (HarmonicReductionFeature,
                                 NotesDurationDistributionFeature,
                                 PitchClassDistributionFeature)
 from scripts.evaluation.utils import open_midi
-from scripts.utils import ROOT_PATH
 
 
 def main(results: dict, word2vec_path: str, output_path: str):

@@ -11,11 +11,11 @@ import scripts.model as module_model
 from scripts.converter import Converter
 from scripts.generator import Generator
 from scripts.trainer import Trainer
-from scripts.utils import ROOT_PATH
+from scripts.utils import DATA_PATH
 from scripts.utils.object_loading import get_dataloaders
 from scripts.utils.parse_config import ConfigParser
 
-DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
+DEFAULT_CHECKPOINT_PATH = DATA_PATH / "default_test_model" / "checkpoint.pth"
 
 
 def main(

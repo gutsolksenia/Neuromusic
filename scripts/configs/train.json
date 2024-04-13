@@ -1,6 +1,6 @@
 {
   "name": "Music_Transformer",
-  "n_gpu": 1,
+  "n_gpu": 2,
   "augmentations": {
     "midi": [],
     "tokens": []

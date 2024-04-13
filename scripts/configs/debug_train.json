@@ -123,7 +123,7 @@
     "monitor": "min val_loss",
     "early_stop": 100,
     "visualize": "wandb",
-    "wandb_project": "junk",
+    "wandb_project": "gutsolksenia_neuromusic",
     "wandb_run_name": "debug_train",
     "len_epoch": 10,
     "grad_norm_clip": 10

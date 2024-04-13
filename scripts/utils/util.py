@@ -8,6 +8,7 @@ import torch
 from sklearn.model_selection import train_test_split
 
 ROOT_PATH = Path(__file__).absolute().resolve().parent.parent.parent
+DATA_PATH = "/storage/kliffeup/gutsolksenia"
 
 
 def ensure_dir(dirname):
