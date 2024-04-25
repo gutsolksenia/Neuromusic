@@ -1,2 +1,4 @@
 scripts/base/__pycache__/*
 *.pyc
+wandb/*
+*.sf2

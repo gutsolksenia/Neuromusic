@@ -41,10 +41,10 @@ python -m train -c scripts/configs/train_config.json
 
 To run test inference with _Los Angeles MIDI_ dataset with 512 prompt tokens and generate 512 tokens:
 ```
-python test.py \
+CUDA_VISIBLE_DEVICES=5 python test.py \
    -c scripts/configs/test_LAMD.json \
-   -r best_model/model_best.pth \
-   -o test_results_LAMD \
+   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/04.16_00.06/model_best.pth \
+   -o /home/kliffeup/gutsolksenia/Neuromusic \
    --prompt_length 512 \
    --continue_length 512 \
    -b 1

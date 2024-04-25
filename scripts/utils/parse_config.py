@@ -8,12 +8,13 @@ from operator import getitem
 from pathlib import Path
 
 import miditok
-from miditok import REMI, TokenizerConfig
+import scripts.tokenizers
+from miditok import REMI, MIDILike, TokenizerConfig
 from miditok.midi_tokenizer import MIDITokenizer
 
 from scripts.logger import setup_logging
 from scripts.utils import ROOT_PATH, read_json, write_json
-
+from scripts.tokenizers import SeqREMI
 
 class ConfigParser:
     def __init__(self, config, resume=None, modification=None, run_id=None):
@@ -142,7 +143,7 @@ class ConfigParser:
 
     def get_midi_encoder(self) -> MIDITokenizer:
         if self._midi_encoder is None:
-            if "tokenizer" not in self._config:
+            # if "tokenizer" not in self._config:
                 config = TokenizerConfig(
                     num_velocities=16, 
                     use_chords=True, 
@@ -152,13 +153,15 @@ class ConfigParser:
                     delete_equal_successive_time_sig_changes=True
                 )
                 self._midi_encoder = REMI(config)
-            else:
-                config = TokenizerConfig(**self['tokenizer']['config_args'])
-                self._midi_encoder = self.init_obj(
-                    self["tokenizer"],
-                    miditok,
-                    tokenizer_config=config
-                )
+            # else:
+            #     config = TokenizerConfig(**self['tokenizer']['config_args'])
+            #     tokenizer_module = scripts.tokenizers if (self.config["tokenizer"]["custom"]) else miditok 
+            #     self._midi_encoder = self.init_obj(
+            #         self["tokenizer"],
+            #         tokenizer_module,
+            #         tokenizer_config=config
+            #     )
+                print(f"midi_encoder={type(self._midi_encoder)}")
         return self._midi_encoder
 
     # setting read-only attributes

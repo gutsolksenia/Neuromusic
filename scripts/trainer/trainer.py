@@ -221,15 +221,15 @@ class Trainer(BaseTrainer):
         target_ids = target_ids.cpu().detach().clone()
         tuples = list(zip(input_ids, sequence_length))
         shuffle(tuples)
-        rows = []
-        for tokens, length in tuples[:examples_to_log]:
-            target_audio = self.converter.score_to_tensor(self.midi_encoder(tokens[:length]))
-            rows.append([
-                self.writer.wandb.Audio(target_audio, sample_rate=16000),
-                length
-            ])
-        table = pd.DataFrame(rows, columns=['target audio', 'sequence length'])
-        self.writer.add_table("predictions", table)
+        # rows = []
+        # for tokens, length in tuples[:examples_to_log]:
+        #     target_audio = self.converter.score_to_tensor(self.midi_encoder(tokens[:length]))
+        #     rows.append([
+        #         self.writer.wandb.Audio(target_audio, sample_rate=16000),
+        #         length
+        #     ])
+        # table = pd.DataFrame(rows, columns=['target audio', 'sequence length'])
+        # self.writer.add_table("predictions", table)
 
     def _log_parameters_histogram(self):
         # add histogram of model parameters to the tensorboard

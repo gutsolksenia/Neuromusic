@@ -36,7 +36,7 @@ class Generator:
         return generated_seq
     
     def generator(self, n_tokens: int, prompt_seq: Optional[Tensor]=None):
-        input_length = self.model.input_length
+        input_length = self.model.module.input_length
         if prompt_seq is None:
             tokens = torch.zeros(n_tokens, dtype=torch.long)
             tokens[0] = self.tokenizer['']

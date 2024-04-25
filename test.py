@@ -60,6 +60,7 @@ def main(
     output_dir = Path(out_path)
     converter = Converter()
     tokenizer = config.get_midi_encoder()
+    print(f"tokenizer={type(tokenizer)}")
 
     with torch.no_grad():
         for batch_idx, batch in enumerate(tqdm(dataloaders["test"])):
@@ -76,15 +77,15 @@ def main(
                 
                 name = Path(midi_path).stem
                 item_path = output_dir / 'compositions' / name
-                item_audio_path = item_path / 'audio'
+                # item_audio_path = item_path / 'audio'
                 item_midi_path = item_path / 'midi'
-                os.makedirs(item_audio_path, exist_ok=True)
+                # os.makedirs(item_audio_path, exist_ok=True)
                 os.makedirs(item_midi_path, exist_ok=True)
                 
-                converter.score_to_audio(tokenizer(prompt), str(item_audio_path / 'prompt.wav'))
-                converter.score_to_audio(tokenizer(generated), str(item_audio_path / 'generated.wav'))
-                converter.score_to_audio(tokenizer(original), str(item_audio_path / 'original.wav'))
-                converter.score_to_audio(tokenizer(continued_original), str(item_audio_path / 'continued_original.wav'))
+                # converter.score_to_audio(tokenizer(prompt), str(item_audio_path / 'prompt.wav'))
+                # converter.score_to_audio(tokenizer(generated), str(item_audio_path / 'generated.wav'))
+                # converter.score_to_audio(tokenizer(original), str(item_audio_path / 'original.wav'))
+                # converter.score_to_audio(tokenizer(continued_original), str(item_audio_path / 'continued_original.wav'))
 
                 tokenizer(prompt).dump_midi(str(item_midi_path / 'prompt.midi'))
                 tokenizer(generated).dump_midi(str(item_midi_path / 'generated.midi'))
@@ -108,7 +109,7 @@ def main(
 def save_tokens(tokens: torch.Tensor, dir: Path, name: str, tokenizer: MIDITokenizer, converter: Converter):
     score = tokenizer(tokens)
     midi_path = dir / 'midi' / 'name.midi'
-    converter.score_to_audio()
+    # converter.score_to_audio()
 
 
 

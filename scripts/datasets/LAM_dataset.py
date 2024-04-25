@@ -96,7 +96,12 @@ class LAMDataset(BaseDataset):
         n_damaged = 0
         tokenizer = REMI(TokenizerConfig(num_velocities=16, use_chords=True, use_programs=True))
         new_data = []
+        tmp = 0
         for meta in tqdm(data):
+            tmp = tmp + 1
+            # TODO remove
+            # if tmp > 1000:
+            #     break
             name = meta[0]
             path = name_to_path[name]
             try:
