@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import scripts.model as module_model
 from scripts.converter import Converter
-from scripts.generator import Generator
+from scripts.generator import ProgramGenerator
 from scripts.trainer import Trainer
 from scripts.utils import DATA_PATH
 from scripts.utils.object_loading import get_dataloaders
@@ -56,7 +56,7 @@ def main(
     model.eval()
 
     results = []
-    generator = Generator(model, midi_encoder, device=device, sample=True)
+    generator = ProgramGenerator(model, midi_encoder, device=device, sample=True)
     output_dir = Path(out_path)
     converter = Converter()
     tokenizer = config.get_midi_encoder()
