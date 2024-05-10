@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 import torch
-from miditok.midi_tokenizer import MIDITokenizer
+# from miditok.midi_tokenizer import MIDITokenizer
 from tqdm import tqdm
 
 import scripts.model as module_model
@@ -109,10 +109,10 @@ def main(
         json.dump(results, fp, indent=2)
 
 
-def save_tokens(tokens: torch.Tensor, dir: Path, name: str, tokenizer: MIDITokenizer, converter: Converter):
-    score = tokenizer(tokens)
-    midi_path = dir / 'midi' / 'name.midi'
-    # converter.score_to_audio()
+# def save_tokens(tokens: torch.Tensor, dir: Path, name: str, tokenizer: MIDITokenizer, converter: Converter):
+#     score = tokenizer(tokens)
+#     midi_path = dir / 'midi' / 'name.midi'
+#     # converter.score_to_audio()
 
 
 

@@ -15,6 +15,7 @@ class Generator:
         self.tokenizer = tokenizer
         self.sample = sample
         self.device = device
+        self.data_parallel = isinstance(model, torch.nn.DataParallel)
     
     def generate(self, n_tokens: int):
         ...
@@ -36,7 +37,7 @@ class Generator:
         return generated_seq
     
     def generator(self, n_tokens: int, prompt_seq: Optional[Tensor]=None):
-        input_length = self.model.module.input_length
+        input_length = self.model.module.input_length if self.data_parallel else self.model.input_length
         if prompt_seq is None:
             tokens = torch.zeros(n_tokens, dtype=torch.long)
             tokens[0] = self.tokenizer['']

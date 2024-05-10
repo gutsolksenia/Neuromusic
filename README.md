@@ -36,7 +36,7 @@ To install all required dependencies and final model run:
 ## Reproduce results
 To run train with _Los Angeles MIDI_ dataset:
 ```shell
-python -m train -c /home/kliffeup/gutsolksenia/Neuromusic/scripts/configs/train_seq_tokenizer.json
+CUDA_VISIBLE_DEVICES=3 python -m train -c /home/kliffeup/gutsolksenia/Neuromusic/scripts/configs/train_seq_tokenizer.json
 
 CUDA_VISIBLE_DEVICES=4,5 python -m train -c /home/kliffeup/gutsolksenia/Neuromusic/scripts/configs/train_seq_tokenizer.json
 ```
@@ -44,7 +44,7 @@ To run test inference with _Los Angeles MIDI_ dataset with 512 prompt tokens and
 ```
 CUDA_VISIBLE_DEVICES=5 python test.py \
    -c scripts/configs/test_LAMD.json \
-   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/04.16_00.06/model_best.pth \
+   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/model_best.pth \
    -o /home/kliffeup/gutsolksenia/Neuromusic \
    --continue_length 512 \
    -b 1
@@ -68,9 +68,9 @@ python test.py \
 To add instrument to an existing melodies
 To run test with custom dataset in _custom_dataset_ directory:
 ```
-python test_program.py \
+CUDA_VISIBLE_DEVICES=0 python test_program.py \
    -c scripts/configs/test_LAMD.json \
-   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/04.16_00.06/model_best.pth \
+   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/05.09_22.28/checkpoint-epoch1.pth \
    -o test_results_custom \
    --prompt_length -1 \
    -b 1 \

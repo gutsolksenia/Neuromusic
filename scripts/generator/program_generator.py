@@ -15,6 +15,7 @@ class ProgramGenerator:
         self.tokenizer = tokenizer
         self.sample = sample
         self.device = device
+        self.data_parallel = isinstance(model, torch.nn.DataParallel)
     
     def generate(self, n_tokens: int):
         ...
@@ -26,7 +27,10 @@ class ProgramGenerator:
         # Bar_None idx=4
         # Position_0 idx=173
         # Program_0 idx=220 (piano)
-        new_instr = torch.tensor([4, 173, 220])
+        new_instr = torch.tensor([
+            self.tokenizer.vocab["Bar_None"],
+            self.tokenizer.vocab["Position_0"],
+            self.tokenizer.vocab["Program_0"]])
         seq = torch.concatenate([seq, new_instr], dim=-1)
 
         is_training = self.model.training
@@ -42,7 +46,7 @@ class ProgramGenerator:
         return generated_seq
     
     def generator(self, n_tokens: int, prompt_seq: Optional[Tensor]=None):
-        input_length = self.model.module.input_length
+        input_length = self.model.module.input_length if self.data_parallel else self.model.input_length
         if prompt_seq is None:
             tokens = torch.zeros(n_tokens, dtype=torch.long)
             tokens[0] = self.tokenizer['']

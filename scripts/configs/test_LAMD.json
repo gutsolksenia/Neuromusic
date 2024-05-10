@@ -1,6 +1,6 @@
 {
   "name": "test_LAMD",
-  "n_gpu": 2,
+  "n_gpu": 1,
   "data": {
     "test": {
       "batch_size": 2,
