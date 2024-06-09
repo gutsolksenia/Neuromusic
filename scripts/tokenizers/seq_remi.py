@@ -76,7 +76,10 @@ class SeqREMI(REMI):
         tokens: TokSequence,
         programs: List):
         delegate_token_sequence: List[TokSequence] = []
-        
+        if len(tokens.tokens) > 0 and tokens.tokens[0] == "BOS_None":
+            tokens.tokens = tokens.tokens[1:]
+            tokens.ids = tokens.ids[1:]
+            tokens.events = tokens[1:]
 
         n = len(tokens.tokens)
         left = 0
@@ -101,10 +104,10 @@ class SeqREMI(REMI):
                 subseq = self.subtoksequence(tokens, left, right)
                 if len(subseq) > 0:
                   delegate_token_sequence.append(subseq)
-                  print(f"subseq={subseq.tokens[:10]}")
-                  print(f"subseq_tail={subseq.tokens[len(subseq.tokens) - 10:]}")
-                  print(f"seen_programs={seen_programs}")
-                  print()
+                #   print(f"subseq={subseq.tokens[:10]}")
+                #   print(f"subseq_tail={subseq.tokens[len(subseq.tokens) - 10:]}")
+                #   print(f"seen_programs={seen_programs}")
+                #   print()
                 left = right
         #   else:
         #     print(f"tokens.tokens[right]={tokens.tokens[right]}")
@@ -117,9 +120,9 @@ class SeqREMI(REMI):
         # print(f"right={right} len={len(tokens.tokens)} left={left}")
     
         subseq = self.subtoksequence(tokens, left, right)
-        print(f"subseq={subseq.tokens[:10]}")
-        print(f"subseq_tail={subseq.tokens[len(subseq.tokens) - 10:]}")
-        print(f"seen_programs={seen_programs}")
+        # print(f"subseq={subseq.tokens[:10]}")
+        # print(f"subseq_tail={subseq.tokens[len(subseq.tokens) - 10:]}")
+        # print(f"seen_programs={seen_programs}")
         if len(seen_programs) < len(tokens):
             subseq_program = "Program_0"
             for token_name in tokens.tokens[left:right]:
@@ -138,8 +141,8 @@ class SeqREMI(REMI):
         # self.print_id("Position_0")
         # self.print_id("Program_0")
 
-        print(f"tokens={len(delegate_token_sequence)}")
-
-        print(f"programs={len(delegate_programs)}")
-
+        # print(f"tokens={len(delegate_token_sequence)}")
+        # print(f"programs={len(delegate_programs)}")
+        # print(f"tokens={tokens.tokens[:100]}")
+        # print(f"token_ids={tokens.ids[:100]}")
         return self.delegate._tokens_to_midi(delegate_token_sequence, delegate_programs)

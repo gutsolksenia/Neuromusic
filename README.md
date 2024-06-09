@@ -42,13 +42,13 @@ CUDA_VISIBLE_DEVICES=4,5 python -m train -c /home/kliffeup/gutsolksenia/Neuromus
 ```
 To run test inference with _Los Angeles MIDI_ dataset with 512 prompt tokens and generate 512 tokens:
 ```
-CUDA_VISIBLE_DEVICES=5 python test.py \
+CUDA_VISIBLE_DEVICES=0 python test.py \
    -c scripts/configs/test_LAMD.json \
-   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/model_best.pth \
+   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/05.09_23.10/model_best.pth \
    -o /home/kliffeup/gutsolksenia/Neuromusic \
    --continue_length 512 \
-   -b 1
-   -t 
+   -b 1 \
+   -t /home/kliffeup/gutsolksenia/Neuromusic/original
 ```
 
 To test model on a custom dataset you need to put MIDI files in some directory.
@@ -69,10 +69,9 @@ To add instrument to an existing melodies
 To run test with custom dataset in _custom_dataset_ directory:
 ```
 CUDA_VISIBLE_DEVICES=0 python test_program.py \
-   -c scripts/configs/test_LAMD.json \
-   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/05.09_22.28/checkpoint-epoch1.pth \
+   -c scripts/configs/test_custom.json \
+   -r /storage/kliffeup/gutsolksenia/neuromusic-saved/models/Music_Transformer/05.09_23.10/model_best.pth \
    -o test_results_custom \
-   --prompt_length -1 \
    -b 1 \
    -t /home/kliffeup/gutsolksenia/Neuromusic/original/
 ```

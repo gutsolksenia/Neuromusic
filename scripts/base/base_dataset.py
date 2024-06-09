@@ -28,6 +28,7 @@ class BaseDataset(Dataset):
             max_audio_length=None,
             filter_limit=None,
             train_bpe=False,
+            full_audio=False,
             **kwargs
     ):
         self.midi_encoder = midi_encoder
@@ -47,6 +48,8 @@ class BaseDataset(Dataset):
         # It would be easier to write length-based batch samplers later
         index = self._sort_index(index)
         self._index: List[dict] = index
+        self.full_audio = full_audio
+        #TODO assert not both n_tokens and full_audio are specified
 
     def __getitem__(self, ind):
         data_dict = self._index[ind]
@@ -92,16 +95,16 @@ class BaseDataset(Dataset):
         if self.midi_augs is not None:
             midi = self.midi_augs(midi)
 
-        midi = midi.sort()
+        # midi = midi.sort()
         return midi
     
     def get_tokens(self, midi):
-        length = self.n_tokens + 1
         tokens_list = self.midi_encoder(midi).ids
         tokens = torch.zeros(len(tokens_list) + 2, dtype=torch.int32)
         tokens[0] = self.midi_encoder['BOS_None']
         tokens[-1] = self.midi_encoder['EOS_None']
         tokens[1:-1] = torch.tensor(tokens_list)
+        length = tokens.shape[0] if self.full_audio else self.n_tokens + 1
         mask = torch.ones(length, dtype=torch.int32)
         if tokens.shape[0] < length:
             mask[tokens.shape[0]:] = 0

@@ -20,27 +20,26 @@ DEFAULT_CHECKPOINT_PATH = DATA_PATH / "default_test_model" / "checkpoint.pth"
 
 def main(
     config, 
-    out_path,
-    prompt_length: int=1024,
-    continue_length: int=1024,
+    out_path
 ):
     logger = config.get_logger("test")
 
     # define cpu or gpu if possible
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # text_encoder
-    midi_encoder = config.get_midi_encoder()
+    # test_encoder
+    tokenizer = config.get_midi_encoder()
+    logger.info(f"tokenizer={type(tokenizer)}") 
 
     # setup data_loader instances
-    dataloaders = get_dataloaders(config, midi_encoder)
+    dataloaders = get_dataloaders(config, tokenizer)
 
     # build model architecture
     model = config.init_obj(
         config["arch"], 
         module_model, 
-        n_class=len(midi_encoder), 
-        pad_id=midi_encoder["PAD_None"]
+        n_class=len(tokenizer), 
+        pad_id=tokenizer["PAD_None"]
     )
     logger.info(model)
 
@@ -56,27 +55,16 @@ def main(
     model.eval()
 
     results = []
-    generator = ProgramGenerator(model, midi_encoder, device=device, sample=True)
+    generator = ProgramGenerator(model, tokenizer=tokenizer, device=device, sample=True)
     output_dir = Path(out_path)
-    converter = Converter()
-    tokenizer = config.get_midi_encoder()
-    print(f"tokenizer={type(tokenizer)}") 
-
     with torch.no_grad():
         for batch_idx, batch in enumerate(tqdm(dataloaders["test"])):
             batch = Trainer.move_batch_to_device(batch, device)
             for item_idx in range(batch['input_ids'].shape[0]):
                 midi_path = batch['midi_path'][item_idx]
-                sequence_length = batch['sequence_length'][item_idx]
-                if prompt_length > 0:
-                  item_prompt_length = min(sequence_length, prompt_length)
-                else:
-                    item_prompt_length = sequence_length
-
-                prompt = batch['input_ids'][item_idx][:item_prompt_length].cpu().detach()
-                generated = generator.continue_seq(continue_length, prompt).cpu().detach()
-                original = batch['input_ids'][item_idx][:item_prompt_length + continue_length].cpu().detach()
-                continued_original = torch.cat([prompt, generated], dim=-1).cpu().detach()
+                original = batch['input_ids'][item_idx].cpu().detach()
+                generated = generator.continue_seq(original).cpu().detach()
+                continued_original = torch.cat([original, generated], dim=-1).cpu().detach()
                 
                 name = Path(midi_path).stem
                 item_path = output_dir / 'compositions' / name
@@ -85,24 +73,20 @@ def main(
                 # os.makedirs(item_audio_path, exist_ok=True)
                 os.makedirs(item_midi_path, exist_ok=True)
                 
-                # converter.score_to_audio(tokenizer(prompt), str(item_audio_path / 'prompt.wav'))
                 # converter.score_to_audio(tokenizer(generated), str(item_audio_path / 'generated.wav'))
                 # converter.score_to_audio(tokenizer(original), str(item_audio_path / 'original.wav'))
                 # converter.score_to_audio(tokenizer(continued_original), str(item_audio_path / 'continued_original.wav'))
 
-                tokenizer(prompt).dump_midi(str(item_midi_path / 'prompt.midi'))
                 tokenizer(generated).dump_midi(str(item_midi_path / 'generated.midi'))
                 tokenizer(original).dump_midi(str(item_midi_path / 'original.midi'))
                 tokenizer(continued_original).dump_midi(str(item_midi_path / 'continued_original.midi'))
 
                 results.append({
                     'composition_dir': str(item_path.absolute()),
-                    'prompt_length': prompt.shape[0],
                     'generated_length': generated.shape[0],
                     'original_length': original.shape[0],
                     'continued_original_length': continued_original.shape[0],
                     'ended_with_eos': tokenizer['EOS_None'] in list(generated),
-                    'prompt_original_path': midi_path,
                 })
 
     with open(output_dir / 'results.json', 'w') as fp:
@@ -168,12 +152,6 @@ if __name__ == "__main__":
         help="Number of workers for test dataloader",
     )
     args.add_argument(
-        "--prompt_length",
-        default=1024,
-        type=int,
-        help="Number of tokens in prompt",
-    )
-    args.add_argument(
         "--continue_length",
         default=1024,
         type=int,
@@ -209,7 +187,8 @@ if __name__ == "__main__":
                     {
                         "type": "CustomDirAudioDataset",
                         "args": {
-                            "audio_dir": str(test_data_folder)
+                            "audio_dir": str(test_data_folder),
+                            "full_audio": True
                         },
                     }
                 ],
@@ -219,6 +198,4 @@ if __name__ == "__main__":
     assert config.config.get("data", {}).get("test", None) is not None
     config["data"]["test"]["batch_size"] = args.batch_size
     config["data"]["test"]["n_jobs"] = args.jobs
-    for dataset in config["data"]["test"]["datasets"]:
-        dataset["args"]["n_tokens"] = args.prompt_length + args.continue_length
-    main(config, args.output, args.prompt_length, args.continue_length)
+    main(config, args.output)

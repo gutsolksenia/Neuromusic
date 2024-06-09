@@ -7,10 +7,10 @@ from tqdm import tqdm
 
 from scripts.base import BaseModel
 from scripts.trainer import Trainer
-
+from scripts.tokenizers import SeqREMI
 
 class ProgramGenerator:
-    def __init__(self, model: BaseModel, tokenizer: MIDITokenizer, device: device, sample=True) -> None:
+    def __init__(self, model: BaseModel, tokenizer: SeqREMI, device: device, sample=True) -> None:
         self.model = model
         self.tokenizer = tokenizer
         self.sample = sample
@@ -20,24 +20,25 @@ class ProgramGenerator:
     def generate(self, n_tokens: int):
         ...
     
-    def continue_seq(self, n_tokens: int, seq: Tensor, full_composition: bool=False):
+    def continue_seq(self, seq: Tensor, full_composition: bool=False):
         if seq[-1].item() == self.tokenizer['EOS_None']:
             seq = seq[:-1]
 
         # Bar_None idx=4
         # Position_0 idx=173
         # Program_0 idx=220 (piano)
+        program = "Program_40"
         new_instr = torch.tensor([
             self.tokenizer.vocab["Bar_None"],
             self.tokenizer.vocab["Position_0"],
-            self.tokenizer.vocab["Program_0"]])
+            self.tokenizer.vocab[program]])
         seq = torch.concatenate([seq, new_instr], dim=-1)
 
         is_training = self.model.training
         self.model = self.model.to(self.device)
         self.model.eval()
         with torch.no_grad():
-            generated_seq = self.generator(n_tokens, seq)
+            generated_seq = self.generator(seq, program)
         if is_training:
             self.model.train()
 
@@ -45,18 +46,21 @@ class ProgramGenerator:
             generated_seq = torch.concatenate([seq, generated_seq], dim=-1)
         return generated_seq
     
-    def generator(self, n_tokens: int, prompt_seq: Optional[Tensor]=None):
+    def generator(self, prompt_seq: Tensor, program=None):
+        program_token_ids = []
+        for (k, v) in self.tokenizer.vocab.items():
+            if k.startswith("Program_"):
+                program_token_ids.append(v)
+        program_token_ids_tensor = torch.tensor(program_token_ids).cuda()
+
         input_length = self.model.module.input_length if self.data_parallel else self.model.input_length
-        if prompt_seq is None:
-            tokens = torch.zeros(n_tokens, dtype=torch.long)
-            tokens[0] = self.tokenizer['']
-            token_idx = 1
-        else:
-            prompt_seq = prompt_seq[:input_length]
-            tokens = torch.zeros(n_tokens + prompt_seq.shape[0], dtype=torch.long)
-            tokens[:] = self.tokenizer['PAD_None']
-            tokens[:prompt_seq.shape[0]] = prompt_seq
-            token_idx = prompt_seq.shape[0]
+        print(f"actual_input_length={prompt_seq.shape[0]}")
+        prompt_seq = prompt_seq[:input_length]
+        n_tokens =  prompt_seq.shape[0] #TODO
+        tokens = torch.zeros(n_tokens + prompt_seq.shape[0], dtype=torch.long)
+        tokens[:] = self.tokenizer['PAD_None']
+        tokens[:prompt_seq.shape[0]] = prompt_seq
+        token_idx = prompt_seq.shape[0]
         mask = torch.zeros(tokens.shape[0])
         mask[:token_idx] = 1
         
@@ -70,6 +74,9 @@ class ProgramGenerator:
             }
             Trainer.move_batch_to_device(batch, self.device)
             new_token = self.pred_next_token(batch)
+            if program is not None \
+                and torch.any(torch.isin(program_token_ids_tensor, new_token, assume_unique=True)): #Check if new token is program token
+                new_token = torch.tensor(self.tokenizer.vocab[program]).cuda()
             tokens[token_idx] = new_token
             mask[token_idx] = 1
             token_idx += 1

@@ -55,11 +55,14 @@ def get_dataloaders(configs: ConfigParser, midi_encoder: MIDITokenizer):
             bs, shuffle = 1, False
         else:
             raise Exception()
+        print(f"params={params}")
+
 
         # Fun fact. An hour of debugging was wasted to write this line
         assert bs <= len(dataset), \
             f"Batch size ({bs}) shouldn't be larger than dataset length ({len(dataset)})"
 
+        print(f"dataset={dataset}")
         # create dataloader
         dataloader = DataLoader(
             dataset, batch_size=bs, collate_fn=collate_fn,
